@@ -1,40 +1,69 @@
-var path = require('path');
-var knex = require('knex')({
-  client: 'sqlite3',
-  connection: {
-    filename: path.join(__dirname, '../db/shortly.sqlite')
-  },
-  useNullAsDefault: true
-});
-var db = require('bookshelf')(knex);
+var crypto = require('crypto');
+var bcrypt = require('bcrypt-nodejs');
+var Promise = require('bluebird');
+var mongoose = require('mongoose');
 
-db.knex.schema.hasTable('urls').then(function(exists) {
-  if (!exists) {
-    db.knex.schema.createTable('urls', function (link) {
-      link.increments('id').primary();
-      link.string('url', 255);
-      link.string('baseUrl', 255);
-      link.string('code', 100);
-      link.string('title', 255);
-      link.integer('visits');
-      link.timestamps();
-    }).then(function (table) {
-      console.log('Created Table', table);
+mongoose.Promise = require('bluebird');
+
+mongoose.connect('mongodb://localhost/test');
+
+// Url Schema & methods
+var UrlSchema = mongoose.Schema({
+  url: String, 
+  baseUrl: String,
+  code: String,
+  title: String,
+  visits: Number
+});
+
+UrlSchema.pre('save', function(next) {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(this.url);
+  this.code = shasum.digest('hex').slice(0, 5);
+});
+
+// User schema & methods
+var UserSchema = mongoose.Schema({
+  username: {type: String, unique: true, required: true, dropDups: true}, 
+  password: String
+});
+
+UserSchema.pre('save', function(next) {
+  var cipher = Promise.promisify(bcrypt.hash);
+  return cipher(this.password, null, null).bind(this)
+    .then(function(hash) {
+      this.password = hash;
+      next();
     });
-  }
 });
 
-db.knex.schema.hasTable('users').then(function(exists) {
-  if (!exists) {
-    db.knex.schema.createTable('users', function (user) {
-      user.increments('id').primary();
-      user.string('username', 100).unique();
-      user.string('password', 100);
-      user.timestamps();
-    }).then(function (table) {
-      console.log('Created Table', table);
-    });
-  }
-});
+UserSchema.methods.comparePassword = function(attemptedPassword, callback) {
+  bcrypt.compare(attemptedPassword, this.get('password'), function(err, isMatch) {
+    callback(isMatch);
+  });
+};
 
-module.exports = db;
+module.exports.UrlSchema = UrlSchema;
+module.exports.UserSchema = UserSchema;
+module.exports.mongoose = mongoose;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
