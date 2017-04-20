@@ -20,6 +20,7 @@ UrlSchema.pre('save', function(next) {
   var shasum = crypto.createHash('sha1');
   shasum.update(this.url);
   this.code = shasum.digest('hex').slice(0, 5);
+  next();
 });
 
 // User schema & methods
@@ -30,7 +31,7 @@ var UserSchema = mongoose.Schema({
 
 UserSchema.pre('save', function(next) {
   var cipher = Promise.promisify(bcrypt.hash);
-  return cipher(this.password, null, null).bind(this)
+  cipher(this.password, null, null).bind(this)
     .then(function(hash) {
       this.password = hash;
       next();
