@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     uglify: {
       target: {
         files: {
-          'public/dist/<%= pkg.name %>.min.js': ['client/**/*.js', 'lib/**/*.js']
+          'public/dist/<%= pkg.name %>.min.js': 'public/dist/<%= pkg.name %>.js'
         }
       },
     },
@@ -41,9 +41,10 @@ module.exports = function(grunt) {
     },
 
     cssmin: {
-      target: [
-        'public/*.css'
-      ]
+      minify: {
+        src: 'public/style.css',
+        dest: 'public/style.min.css'
+      }
     },
 
     watch: {
@@ -58,7 +59,7 @@ module.exports = function(grunt) {
         ]
       },
       css: {
-        files: 'public/*.css',
+        files: 'public/style.css',
         tasks: ['cssmin']
       }
     },
@@ -82,6 +83,7 @@ module.exports = function(grunt) {
   grunt.registerTask('server-dev', function (target) {
     grunt.task.run([ 'nodemon', 'watch' ]);
   });
+
 
   ////////////////////////////////////////////////////
   // Main grunt tasks
