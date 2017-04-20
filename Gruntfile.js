@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     concat: {
       options: { separator: ';'},
       dist: {
-        src: ['public/client/**/*.js', 'public/lib/**/*.js'],
+        src: ['public/client/**/*.js'],
         dest: 'public/dist/<%= pkg.name %>.js'
       }
     },
@@ -35,8 +35,7 @@ module.exports = function(grunt) {
 
     eslint: {
       target: [
-        'public/client/**/*.js',
-        'public/lib/**/*.js'
+        'public/client/**/*.js'
       ]
     },
 
@@ -51,7 +50,6 @@ module.exports = function(grunt) {
       scripts: {
         files: [
           'public/client/**/*.js',
-          'public/lib/**/*.js',
         ],
         tasks: [
           'concat',
