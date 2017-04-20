@@ -30,7 +30,7 @@ module.exports = function(grunt) {
         files: {
           'public/dist/<%= pkg.name %>.min.js': ['client/**/*.js', 'lib/**/*.js']
         }
-      }
+      },
     },
 
     eslint: {
